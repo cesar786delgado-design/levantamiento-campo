@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111820">
+<title>Levantamiento de campo · Grupo Jalisco</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%2300AF41'/%3E%3C/svg%3E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+:root{
+  --verde:#00AF41; --verde-osc:#008733; --negro:#111820; --tinta:#1B2530;
+  --papel:#F7F6F3; --linea:#DCD9D2; --gris:#6E7478; --gris-cl:#9AA0A4;
+  --rojo:#C0392B; --azul:#2C6FA6; --amar:#B8860B; --mor:#7A4EA8;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Roboto Mono",monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--sans); background:var(--papel); color:var(--negro);
+  font-size:16px; line-height:1.45; padding-bottom:env(safe-area-inset-bottom);
+}
+button,input,select,textarea{font-family:inherit;font-size:16px}
+
+/* ---------- barra superior tipo remisión ---------- */
+.tope{
+  position:sticky; top:0; z-index:50; background:var(--negro); color:#fff;
+  padding:calc(env(safe-area-inset-top) + 10px) 16px 10px;
+  display:flex; align-items:center; gap:12px;
+  border-bottom:3px solid var(--verde);
+}
+.tope .marca{font-weight:800;letter-spacing:.14em;font-size:11px;color:var(--verde)}
+.tope .folio{font-family:var(--mono);font-size:11px;color:var(--gris-cl);margin-left:auto}
+.tope h1{font-size:15px;margin:0;font-weight:700;letter-spacing:-.01em}
+
+/* ---------- progreso: regla de obra ---------- */
+.regla{display:flex;gap:3px;padding:10px 16px 0;background:var(--papel)}
+.regla i{flex:1;height:4px;background:var(--linea);border-radius:2px;transition:background .25s}
+.regla i.on{background:var(--verde)}
+.paso-num{
+  padding:12px 16px 0; font-family:var(--mono); font-size:11px;
+  color:var(--gris); letter-spacing:.1em; text-transform:uppercase;
+}
+
+/* ---------- lienzo ---------- */
+main{padding:0 16px 130px; max-width:640px; margin:0 auto}
+h2{font-size:25px;line-height:1.15;margin:6px 0 4px;letter-spacing:-.025em;font-weight:800}
+.sub{color:var(--gris);font-size:14px;margin:0 0 22px}
+
+label.campo{display:block;margin:0 0 20px}
+label.campo>span.et{
+  display:block;font-size:12px;font-weight:700;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--tinta);margin-bottom:7px
+}
+label.campo>span.ay{display:block;font-size:12.5px;color:var(--gris);margin:-3px 0 7px;font-weight:400;letter-spacing:0;text-transform:none}
+input[type=text],input[type=tel],input[type=number],select,textarea{
+  width:100%; padding:14px 14px; border:1.5px solid var(--linea); border-radius:10px;
+  background:#fff; color:var(--negro); outline:none; transition:border-color .15s,box-shadow .15s;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--verde);box-shadow:0 0 0 3px rgba(0,175,65,.16)}
+input[type=number]{font-family:var(--mono)}
+textarea{min-height:92px;resize:vertical}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236E7478' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:38px}
+
+/* ---------- opciones grandes (dedo) ---------- */
+.ops{display:grid;gap:9px}
+.ops.dos{grid-template-columns:1fr 1fr}
+.ops.tres{grid-template-columns:repeat(3,1fr)}
+.op{
+  display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+  padding:14px; border:1.5px solid var(--linea); border-radius:11px; background:#fff;
+  cursor:pointer; transition:border-color .12s, background .12s; font-weight:600; color:var(--negro);
+}
+.op:active{transform:scale(.99)}
+.op .pt{
+  width:20px;height:20px;border:2px solid var(--linea);border-radius:50%;
+  flex:0 0 20px; position:relative; transition:border-color .12s
+}
+.op.cua .pt{border-radius:5px}
+.op[aria-pressed=true]{border-color:var(--verde);background:#F0FAF3}
+.op[aria-pressed=true] .pt{border-color:var(--verde);background:var(--verde)}
+.op[aria-pressed=true] .pt::after{
+  content:"";position:absolute;inset:0;margin:auto;width:7px;height:7px;background:#fff;border-radius:50%
+}
+.op.cua[aria-pressed=true] .pt::after{
+  width:5px;height:9px;border:solid #fff;border-width:0 2.5px 2.5px 0;background:none;
+  border-radius:0;transform:rotate(45deg) translate(-1px,-1px)
+}
+.op .tx{flex:1;min-width:0}
+.op .tx b{display:block;font-size:15.5px;font-weight:700}
+.op .tx small{display:block;font-size:12px;color:var(--gris);font-weight:500;margin-top:1px}
+.op.compacta{padding:12px 13px;justify-content:center;text-align:center}
+.op.compacta .tx b{font-size:14.5px}
+
+/* rutas con su color */
+.op.ruta{border-left-width:5px}
+.op.ruta[data-r=COLIMA]{border-left-color:var(--rojo)}
+.op.ruta[data-r=TEPIC]{border-left-color:var(--azul)}
+.op.ruta[data-r=VALLES]{border-left-color:var(--amar)}
+.op.ruta[data-r=YAHUALICA]{border-left-color:var(--mor)}
+
+/* ---------- pin gps ---------- */
+.pin{
+  border:1.5px dashed var(--linea); border-radius:11px; padding:15px; background:#fff;
+  display:flex; align-items:center; gap:13px
+}
+.pin.ok{border-style:solid;border-color:var(--verde);background:#F0FAF3}
+.pin .ico{width:38px;height:38px;flex:0 0 38px;border-radius:9px;background:var(--negro);display:grid;place-items:center}
+.pin.ok .ico{background:var(--verde)}
+.pin .txt{flex:1;min-width:0}
+.pin .txt b{display:block;font-size:14.5px}
+.pin .txt small{display:block;font-family:var(--mono);font-size:11.5px;color:var(--gris);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pin button{
+  border:none;background:var(--negro);color:#fff;border-radius:9px;padding:11px 15px;
+  font-weight:700;font-size:13.5px;cursor:pointer;white-space:nowrap
+}
+.pin.ok button{background:var(--verde)}
+
+/* ---------- precio con conversión ---------- */
+.precio{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:start}
+.conv{
+  font-family:var(--mono);font-size:12px;color:var(--verde-osc);background:#F0FAF3;
+  border:1px solid #C9EBD5;border-radius:8px;padding:9px 11px;margin-top:8px;display:none
+}
+.conv.ver{display:block}
+.seg{display:flex;border:1.5px solid var(--linea);border-radius:10px;overflow:hidden;background:#fff}
+.seg button{
+  border:none;background:none;padding:14px 13px;font-weight:700;font-size:13.5px;
+  color:var(--gris);cursor:pointer;white-space:nowrap
+}
+.seg button[aria-pressed=true]{background:var(--negro);color:#fff}
+
+/* ---------- pie de navegación ---------- */
+.pie{
+  position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(247,246,243,.94);
+  backdrop-filter:blur(10px);border-top:1px solid var(--linea);
+  padding:11px 16px calc(env(safe-area-inset-bottom) + 11px);
+  display:flex;gap:9px;max-width:640px;margin:0 auto
+}
+.btn{
+  flex:1;border:none;border-radius:11px;padding:16px;font-weight:800;font-size:16px;cursor:pointer;
+  letter-spacing:-.01em
+}
+.btn.pri{background:var(--verde);color:#fff}
+.btn.pri:disabled{background:var(--linea);color:var(--gris-cl);cursor:not-allowed}
+.btn.sec{flex:0 0 92px;background:#fff;color:var(--tinta);border:1.5px solid var(--linea)}
+
+/* ---------- avisos ---------- */
+.aviso{
+  background:#FFF8E6;border:1px solid #F0DFA8;border-radius:10px;padding:12px 13px;
+  font-size:13px;color:#7A5C00;margin-bottom:18px
+}
+.aviso b{display:block;margin-bottom:2px}
+
+/* ---------- pantalla de registros ---------- */
+.lista{display:grid;gap:9px}
+.reg{
+  background:#fff;border:1px solid var(--linea);border-radius:11px;padding:13px 14px;
+  border-left:5px solid var(--linea)
+}
+.reg[data-r=COLIMA]{border-left-color:var(--rojo)}
+.reg[data-r=TEPIC]{border-left-color:var(--azul)}
+.reg[data-r=VALLES]{border-left-color:var(--amar)}
+.reg[data-r=YAHUALICA]{border-left-color:var(--mor)}
+.reg b{display:block;font-size:15.5px;letter-spacing:-.01em}
+.reg .meta{font-size:12.5px;color:var(--gris);margin-top:2px}
+.reg .tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+.tag{
+  font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;
+  background:var(--papel);border:1px solid var(--linea);color:var(--tinta)
+}
+.tag.si{background:#F0FAF3;border-color:#C9EBD5;color:var(--verde-osc)}
+.vacio{text-align:center;padding:52px 20px;color:var(--gris)}
+.vacio .g{font-size:34px;margin-bottom:10px}
+.sync{
+  display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:10px;
+  font-size:13.5px;font-weight:700;margin:16px 0 6px
+}
+.sync.pend{background:#FFF8E6;color:#7A5C00;border:1px solid #F0DFA8}
+.sync.ok{background:#F0FAF3;color:var(--verde-osc);border:1px solid #C9EBD5}
+.resumen{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:20px
+}
+.tar{background:var(--negro);color:#fff;border-radius:11px;padding:13px}
+.tar .n{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--verde);line-height:1}
+.tar .l{font-size:10.5px;color:var(--gris-cl);margin-top:5px;letter-spacing:.05em;text-transform:uppercase}
+.acciones{display:grid;gap:9px;margin-top:22px}
+.acc{
+  border:1.5px solid var(--linea);background:#fff;border-radius:11px;padding:15px;
+  font-weight:700;cursor:pointer;text-align:left;display:flex;align-items:center;gap:11px;color:var(--negro)
+}
+.acc small{display:block;font-weight:500;font-size:12.5px;color:var(--gris);margin-top:1px}
+
+.oculto{display:none !important}
+.exito{
+  position:fixed;inset:0;z-index:90;background:var(--verde);color:#fff;
+  display:grid;place-items:center;text-align:center;padding:30px;
+  animation:sube .28s ease-out
+}
+@keyframes sube{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.exito h3{font-size:29px;margin:14px 0 6px;letter-spacing:-.02em}
+.exito p{opacity:.85;margin:0;font-size:15px}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+</style>
+</head>
+<body>
+
+<div class="tope">
+  <div>
+    <div class="marca">GRUPO JALISCO</div>
+    <h1 id="tituloTope">Levantamiento de campo</h1>
+  </div>
+  <div class="folio" id="folio"></div>
+</div>
+
+<div class="regla" id="regla"></div>
+<div class="paso-num" id="pasoNum"></div>
+
+<main id="lienzo"></main>
+
+<div class="pie" id="pie"></div>
+
+<script>
+/* =========================================================
+   DATOS PRECARGADOS
+   ========================================================= */
+const RUTAS = {
+  COLIMA:{nombre:"Ruta Colima", color:"var(--rojo)", municipios:[
+    "Acatlán de Juárez","Villa Corona","Zacoalco de Torres","Techaluta de Montenegro","Amacueca",
+    "Sayula","Gómez Farías","Ciudad Guzmán","Zapotiltic","Tuxpan","Tonila","Tecalitlán",
+    "Tamazula de Gordiano","Cuauhtémoc","Villa de Álvarez","Colima","Coquimatlán","Comala",
+    "Tecomán","Armería","Manzanillo","Minatitlán"]},
+  TEPIC:{nombre:"Ruta Tepic", color:"var(--azul)", municipios:[
+    "El Arenal","Amatitán","Tequila","Magdalena","Hostotipaquillo","Ixtlán del Río","Ahuacatlán",
+    "Jala","Santa María del Oro","San Pedro Lagunillas","Xalisco","Tepic"]},
+  VALLES:{nombre:"Ruta Valles", color:"var(--amar)", municipios:[
+    "Tala","Teuchitlán","Ahualulco de Mercado","San Juanito de Escobedo","Etzatlán","San Marcos",
+    "Ameca","San Martín Hidalgo","Cocula"]},
+  YAHUALICA:{nombre:"Ruta Yahualica", color:"var(--mor)", municipios:[
+    "Ixtlahuacán del Río","Cuquío","Yahualica de González Gallo","San Cristóbal de la Barranca"]}
+};
+const MARCAS = ["Fortaleza","Moctezuma","Cruz Azul","Holcim","Tolteca","Cemex","Cementos Chihuahua","Otra"];
+
+/* =========================================================
+   ALMACENAMIENTO — intenta disco, si no queda en memoria
+   ========================================================= */
+const Store = (()=>{
+  let mem = {}; let usaDisco = false;
+  try{
+    const k="__probe__"; localStorage.setItem(k,"1"); localStorage.removeItem(k); usaDisco=true;
+  }catch(e){ usaDisco=false; }
+  return {
+    get(k,def){
+      try{
+        const v = usaDisco ? localStorage.getItem(k) : mem[k];
+        return v==null ? def : JSON.parse(v);
+      }catch(e){ return def; }
+    },
+    set(k,v){
+      const s=JSON.stringify(v);
+      try{ if(usaDisco) localStorage.setItem(k,s); else mem[k]=s; }catch(e){ mem[k]=s; }
+    },
+    persistente: usaDisco
+  };
+})();
+
+const K_REG="gj_registros", K_VEND="gj_vendedor", K_BORR="gj_borrador";
+let registros = Store.get(K_REG, []);
+let vendedor  = Store.get(K_VEND, "");
+let d         = Store.get(K_BORR, nuevo());
+let paso = 0;
+let vista = registros.length && !d.negocio ? "lista" : "form";
+
+function nuevo(){
+  return {
+    id:null, vendedor:"", fecha:"", ruta:"", municipio:"", negocio:"", telefono:"",
+    lat:null, lon:null, precision:null,
+    decide:"", marcas:[], marcaPrincipal:"", unidadPrecio:"bulto", precioMostrador:"", precioMortero:"",
+    toneladas:"", trailer:"", pago:"", interes:"", notas:""
+  };
+}
+function guardarBorrador(){ Store.set(K_BORR, d); }
+
+/* =========================================================
+   PASOS
+   ========================================================= */
+const PASOS = [
+  {t:"Dónde estás", s:"Ruta, plaza y el pin del negocio", r:()=>["ruta","municipio","negocio"]},
+  {t:"Qué vende",   s:"Marcas, precio y cómo compra — el dato que venimos a buscar", r:()=>["marcas"]},
+  {t:"Tu lectura",  s:"Cómo se vio y lo que valga la pena anotar", r:()=>["interes"]}
+];
+
+/* =========================================================
+   PINTAR
+   ========================================================= */
+const $ = s=>document.querySelector(s);
+const esc = t=>String(t==null?"":t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function pintar(){
+  if(vista==="lista"){ pintarLista(); return; }
+  if(!vendedor){ pintarVendedor(); return; }
+  pintarPaso();
+}
+
+/* ---------- alta de vendedor ---------- */
+function pintarVendedor(){
+  $("#regla").className="regla oculto"; $("#pasoNum").textContent=""; $("#folio").textContent="";
+  $("#tituloTope").textContent="Levantamiento de campo";
+  $("#lienzo").innerHTML = `
+    <h2 style="margin-top:26px">Antes de empezar</h2>
+    <p class="sub">Tu nombre se guarda en este teléfono. Solo lo pides una vez.</p>
+    <label class="campo">
+      <span class="et">¿Quién levanta?</span>
+      <input type="text" id="inVend" placeholder="Nombre y apellido" autocomplete="name" value="${esc(vendedor)}">
+    </label>
+    ${Store.persistente?"":`<div class="aviso"><b>Modo de prueba</b>Este navegador no está guardando en disco. Sirve para probar, pero para el campo hay que abrirlo desde el archivo instalado en el teléfono.</div>`}
+  `;
+  $("#pie").innerHTML = `<button class="btn pri" id="bVend" disabled>Empezar</button>`;
+  const inp=$("#inVend"), b=$("#bVend");
+  const chk=()=>{ b.disabled = inp.value.trim().length<3; };
+  inp.addEventListener("input",chk); chk();
+  b.onclick=()=>{ vendedor=inp.value.trim(); Store.set(K_VEND,vendedor); pintar(); };
+}
+
+/* ---------- pasos del formulario ---------- */
+function pintarPaso(){
+  const P=PASOS[paso];
+  $("#regla").className="regla";
+  $("#regla").innerHTML = PASOS.map((_,i)=>`<i class="${i<=paso?"on":""}"></i>`).join("");
+  $("#pasoNum").textContent = `Paso ${paso+1} de ${PASOS.length}`;
+  $("#tituloTope").textContent = d.negocio || "Nueva visita";
+  $("#folio").textContent = d.ruta ? RUTAS[d.ruta].nombre.toUpperCase() : "";
+  $("#lienzo").innerHTML = `<h2>${P.t}</h2><p class="sub">${P.s}</p>` + cuerpo[paso]();
+  $("#pie").innerHTML = `
+    ${paso>0?`<button class="btn sec" id="bAtras">Atrás</button>`:`<button class="btn sec" id="bSalir">Salir</button>`}
+    <button class="btn pri" id="bSig">${paso===PASOS.length-1?"Guardar visita":"Siguiente"}</button>`;
+  enlazar();
+  const bA=$("#bAtras"); if(bA) bA.onclick=()=>{ paso--; pintar(); };
+  const bS=$("#bSalir"); if(bS) bS.onclick=()=>{ vista="lista"; pintar(); };
+  $("#bSig").onclick=()=>{
+    if(!valida()) return;
+    if(paso===PASOS.length-1){ guardarVisita(); }
+    else { paso++; guardarBorrador(); pintar(); window.scrollTo(0,0); }
+  };
+  revisar();
+}
+
+/* ---------- constructores de cada paso ---------- */
+const cuerpo = [
+  // 0 · dónde
+  ()=>`
+    <label class="campo">
+      <span class="et">Ruta</span>
+      <div class="ops">${Object.entries(RUTAS).map(([k,v])=>`
+        <button class="op ruta" data-r="${k}" data-campo="ruta" data-val="${k}" aria-pressed="${d.ruta===k}">
+          <span class="pt"></span><span class="tx"><b>${v.nombre}</b></span>
+        </button>`).join("")}</div>
+    </label>
+    <label class="campo" id="wMun" ${d.ruta?"":'style="display:none"'}>
+      <span class="et">Municipio</span>
+      <select id="selMun">
+        <option value="">Selecciona…</option>
+        ${d.ruta?RUTAS[d.ruta].municipios.map(m=>`<option ${d.municipio===m?"selected":""}>${m}</option>`).join(""):""}
+      </select>
+    </label>
+    <label class="campo">
+      <span class="et">Nombre del negocio</span>
+      <input type="text" data-campo="negocio" value="${esc(d.negocio)}" placeholder="Como dice el letrero">
+    </label>
+    <label class="campo">
+      <span class="et">Quién decide la compra</span>
+      <span class="ay">El nombre de quien autoriza, no el del mostrador.</span>
+      <input type="text" data-campo="decide" value="${esc(d.decide)}" placeholder="Nombre">
+    </label>
+    <label class="campo">
+      <span class="et">Teléfono</span>
+      <span class="ay">Opcional, pero es lo que nos deja volver.</span>
+      <input type="tel" data-campo="telefono" value="${esc(d.telefono)}" placeholder="10 dígitos" inputmode="numeric">
+    </label>
+    <label class="campo">
+      <span class="et">Ubicación</span>
+      <span class="ay">Párate enfrente del negocio y toca el botón.</span>
+      <div class="pin ${d.lat?"ok":""}" id="pinBox">
+        <div class="ico">${d.lat?ICO_CHECK:ICO_PIN}</div>
+        <div class="txt">
+          <b>${d.lat?"Pin puesto":"Sin ubicación"}</b>
+          <small>${d.lat?`${d.lat.toFixed(5)}, ${d.lon.toFixed(5)} · ±${Math.round(d.precision)} m`:"Guarda la coordenada exacta"}</small>
+        </div>
+        <button id="bGps" type="button">${d.lat?"Repetir":"Poner pin"}</button>
+      </div>
+    </label>`,
+
+  // 1 · qué vende
+  ()=>`
+    <label class="campo">
+      <span class="et">Marcas que maneja</span>
+      <span class="ay">Todas las que veas en piso.</span>
+      <div class="ops dos">${MARCAS.map(m=>`
+        <button class="op cua compacta" data-multi="marcas" data-val="${m}" aria-pressed="${d.marcas.includes(m)}"><span class="pt"></span><span class="tx"><b>${m}</b></span></button>`).join("")}</div>
+    </label>
+    <label class="campo" id="wPrin" ${d.marcas.length?"":'style="display:none"'}>
+      <span class="et">Cuál es la principal</span>
+      <select id="selPrin">
+        <option value="">Selecciona…</option>
+        ${d.marcas.map(m=>`<option ${d.marcaPrincipal===m?"selected":""}>${m}</option>`).join("")}
+      </select>
+    </label>
+    <label class="campo">
+      <span class="et">A cómo la vende</span>
+      <div class="seg" style="margin-bottom:9px">
+        <button type="button" data-campo="unidadPrecio" data-val="bulto" aria-pressed="${d.unidadPrecio==="bulto"}" style="flex:1">Por bulto de 50 kg</button>
+        <button type="button" data-campo="unidadPrecio" data-val="tonelada" aria-pressed="${d.unidadPrecio==="tonelada"}" style="flex:1">Por tonelada</button>
+      </div>
+    </label>
+    <label class="campo">
+      <span class="et">Precio del cemento</span>
+      <input type="number" data-campo="precioMostrador" value="${esc(d.precioMostrador)}" placeholder="0" inputmode="decimal">
+      <div class="conv" id="cv1"></div>
+    </label>
+    <label class="campo">
+      <span class="et">Precio del mortero</span>
+      <span class="ay">Si no lo maneja, déjalo vacío.</span>
+      <input type="number" data-campo="precioMortero" value="${esc(d.precioMortero)}" placeholder="0" inputmode="decimal">
+      <div class="conv" id="cv1m"></div>
+    </label>
+    <label class="campo">
+      <span class="et">Cuánto compra al mes</span>
+      <span class="ay">Toneladas de cemento y mortero, aproximado. 1 tonelada = 20 bultos.</span>
+      <input type="number" data-campo="toneladas" value="${esc(d.toneladas)}" placeholder="0" inputmode="decimal">
+      <div class="conv" id="cv2"></div>
+    </label>
+    <label class="campo">
+      <span class="et">¿Le cabe un tráiler de 36 toneladas?</span>
+      <div class="ops tres">${["Sí","No","No sé"].map(t=>`
+        <button class="op compacta" data-campo="trailer" data-val="${t}" aria-pressed="${d.trailer===t}"><span class="tx"><b>${t}</b></span></button>`).join("")}</div>
+    </label>
+    <label class="campo">
+      <span class="et">Cómo paga hoy</span>
+      <div class="ops tres">${["Contado","Crédito","Las dos"].map(t=>`
+        <button class="op compacta" data-campo="pago" data-val="${t}" aria-pressed="${d.pago===t}"><span class="tx"><b>${t}</b></span></button>`).join("")}</div>
+    </label>`,
+
+  // 2 · tu lectura
+  ()=>`
+    <label class="campo">
+      <span class="et">Qué tan interesado se vio</span>
+      <div class="ops">${[
+        ["Alto","Quiere precio y condiciones ya"],
+        ["Medio","Escuchó, pero no se comprometió"],
+        ["Bajo","No le movió"]].map(([t,s])=>`
+        <button class="op" data-campo="interes" data-val="${t}" aria-pressed="${d.interes===t}"><span class="pt"></span><span class="tx"><b>${t}</b><small>${s}</small></span></button>`).join("")}</div>
+    </label>
+    <label class="campo">
+      <span class="et">Notas</span>
+      <span class="ay">Quién lo surte, quejas del proveedor, obra en la zona, quién decide. Lo que sirva.</span>
+      <textarea data-campo="notas" placeholder="Escribe aquí…">${esc(d.notas)}</textarea>
+    </label>`
+];
+
+const ICO_PIN='<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>';
+const ICO_CHECK='<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6"><path d="M4 12.5l5.2 5L20 7"/></svg>';
+
+/* =========================================================
+   INTERACCIÓN
+   ========================================================= */
+function enlazar(){
+  document.querySelectorAll("[data-campo]").forEach(el=>{
+    const c=el.dataset.campo;
+    if(el.dataset.val!==undefined){
+      el.onclick=()=>{
+        d[c]=el.dataset.val;
+        el.parentElement.querySelectorAll("[data-campo='"+c+"']").forEach(o=>o.setAttribute("aria-pressed","false"));
+        el.setAttribute("aria-pressed","true");
+        if(c==="ruta"){ d.municipio=""; pintar(); return; }
+        if(c==="unidadPrecio") conv();
+        guardarBorrador(); revisar();
+      };
+    } else {
+      el.oninput=()=>{ d[c]=el.value; if(c==="precioMostrador"||c==="precioMortero"||c==="toneladas") conv(); guardarBorrador(); revisar(); };
+    }
+  });
+  document.querySelectorAll("[data-multi]").forEach(el=>{
+    const c=el.dataset.multi, v=el.dataset.val;
+    el.onclick=()=>{
+      const i=d[c].indexOf(v);
+      if(i<0) d[c].push(v); else d[c].splice(i,1);
+      el.setAttribute("aria-pressed", d[c].includes(v)?"true":"false");
+      if(c==="marcas"){
+        const w=$("#wPrin");
+        if(w){
+          w.style.display = d.marcas.length?"block":"none";
+          const s=$("#selPrin");
+          if(!d.marcas.includes(d.marcaPrincipal)) d.marcaPrincipal="";
+          s.innerHTML = `<option value="">Selecciona…</option>`+d.marcas.map(m=>`<option ${d.marcaPrincipal===m?"selected":""}>${m}</option>`).join("");
+        }
+      }
+      guardarBorrador(); revisar();
+    };
+  });
+  const sm=$("#selMun"); if(sm) sm.onchange=()=>{ d.municipio=sm.value; guardarBorrador(); revisar(); };
+  const sp=$("#selPrin"); if(sp) sp.onchange=()=>{ d.marcaPrincipal=sp.value; guardarBorrador(); };
+  const bg=$("#bGps"); if(bg) bg.onclick=gps;
+  conv();
+}
+
+function conv(){
+  const box=$("#cv1");
+  if(box){
+    const v=parseFloat(d.precioMostrador);
+    if(isNaN(v)||v<=0){ box.className="conv"; box.textContent=""; }
+    else{
+      const f = d.unidadPrecio==="bulto" ? 20 : 1/20;
+      const et = d.unidadPrecio==="bulto" ? "por tonelada" : "por bulto";
+      box.className="conv ver";
+      box.textContent = "= $"+(v*f).toLocaleString("es-MX",{maximumFractionDigits:2})+" "+et;
+    }
+  }
+  const box2=$("#cv1m");
+  if(box2){
+    const v=parseFloat(d.precioMortero);
+    if(isNaN(v)||v<=0){ box2.className="conv"; box2.textContent=""; }
+    else{
+      const f = d.unidadPrecio==="bulto" ? 20 : 1/20;
+      const et = d.unidadPrecio==="bulto" ? "por tonelada" : "por bulto";
+      box2.className="conv ver";
+      box2.textContent = "= $"+(v*f).toLocaleString("es-MX",{maximumFractionDigits:2})+" "+et;
+    }
+  }
+  const b2=$("#cv2");
+  if(b2){
+    const t=parseFloat(d.toneladas);
+    if(isNaN(t)||t<=0){ b2.className="conv"; b2.textContent=""; }
+    else{
+      b2.className="conv ver";
+      const tr=t/36;
+      b2.textContent = "= "+(tr<1 ? "menos de un tráiler al mes" : tr.toFixed(1).replace(".0","")+" tráileres al mes");
+    }
+  }
+}
+
+function gps(){
+  const box=$("#pinBox"), b=$("#bGps");
+  if(!navigator.geolocation){ b.textContent="No disponible"; return; }
+  b.textContent="Buscando…"; b.disabled=true;
+  navigator.geolocation.getCurrentPosition(
+    p=>{
+      d.lat=p.coords.latitude; d.lon=p.coords.longitude; d.precision=p.coords.accuracy||0;
+      guardarBorrador(); pintar();
+    },
+    err=>{
+      b.disabled=false; b.textContent="Reintentar";
+      box.querySelector(".txt b").textContent = err.code===1?"Permiso denegado":"No se pudo ubicar";
+      box.querySelector(".txt small").textContent = err.code===1?"Activa la ubicación en el navegador":"Sal a cielo abierto e intenta otra vez";
+    },
+    {enableHighAccuracy:true, timeout:15000, maximumAge:0}
+  );
+}
+
+function valida(){
+  const faltan=PASOS[paso].r().filter(c=>{
+    const v=d[c];
+    return Array.isArray(v) ? v.length===0 : !String(v||"").trim();
+  });
+  return faltan.length===0;
+}
+function revisar(){
+  const b=$("#bSig"); if(b) b.disabled=!valida();
+}
+
+/* =========================================================
+   GUARDAR
+   ========================================================= */
+function guardarVisita(){
+  d.id = "V"+Date.now().toString(36).toUpperCase();
+  d.vendedor = vendedor;
+  d.fecha = new Date().toISOString();
+  registros.unshift(JSON.parse(JSON.stringify(d)));
+  Store.set(K_REG, registros);
+  Store.set(K_COLA, Store.get(K_COLA,[]).concat([registros[0]]));
+  sincronizar();
+  d = nuevo(); Store.set(K_BORR, d); paso=0;
+  const ex=document.createElement("div");
+  ex.className="exito";
+  ex.innerHTML=`<div><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M4 12.5l5.2 5L20 7"/></svg>
+    <h3>Visita guardada</h3><p>Llevas ${registros.length} en este teléfono</p></div>`;
+  document.body.appendChild(ex);
+  setTimeout(()=>{ ex.remove(); vista="lista"; pintar(); window.scrollTo(0,0); }, 1100);
+}
+
+/* =========================================================
+   LISTA
+   ========================================================= */
+function pintarLista(){
+  $("#regla").className="regla oculto"; $("#pasoNum").textContent="";
+  $("#tituloTope").textContent="Visitas levantadas";
+  $("#folio").textContent = vendedor ? vendedor.split(" ")[0].toUpperCase() : "";
+  const alto = registros.filter(r=>r.interes==="Alto").length;
+  const plazas = new Set(registros.map(r=>r.municipio)).size;
+  const pendientes = Store.get(K_COLA, []).length;
+  $("#lienzo").innerHTML = `
+    <div class="resumen" style="margin-top:20px">
+      <div class="tar"><div class="n">${registros.length}</div><div class="l">Visitas</div></div>
+      <div class="tar"><div class="n">${alto}</div><div class="l">Interés alto</div></div>
+      <div class="tar"><div class="n">${plazas}</div><div class="l">Plazas</div></div>
+    </div>
+    <div class="sync ${pendientes>0?"pend":"ok"}">${pendientes>0?`${pendientes} sin subir`:"Todo sincronizado"}</div>
+    ${registros.length? `<div class="lista">${registros.map(fila).join("")}</div>` :
+      `<div class="vacio"><div class="g">📋</div><b>Todavía no hay visitas</b><p style="margin:6px 0 0;font-size:14px">Toca “Nueva visita” para levantar la primera.</p></div>`}
+    <div class="acciones">
+      <button class="acc" id="aCsv">📄 <span>Descargar el archivo<small>Se abre en Excel. Es lo que nos mandas.</small></span></button>
+      <button class="acc" id="aWa">📲 <span>Enviar resumen por WhatsApp<small>Para avisar cómo va el día</small></span></button>
+    </div>
+    <p style="font-size:11.5px;color:var(--gris);text-align:center;margin:22px 0 0">
+      Las visitas se guardan en este teléfono aunque no haya señal.<br>Descarga el archivo al terminar el día.
+    </p>`;
+  $("#pie").innerHTML = `<button class="btn pri" id="bNueva">Nueva visita</button>`;
+  $("#bNueva").onclick=()=>{ d=nuevo(); paso=0; vista="form"; guardarBorrador(); pintar(); window.scrollTo(0,0); };
+  $("#aCsv").onclick=csv;
+  $("#aWa").onclick=whats;
+}
+
+function fila(r){
+  const f=new Date(r.fecha);
+  const pt = r.precioMostrador ? `$${Number(r.precioMostrador).toLocaleString("es-MX")}/${r.unidadPrecio==="bulto"?"bulto":"ton"}` : "";
+  return `<div class="reg" data-r="${r.ruta}">
+    <b>${esc(r.negocio)}</b>
+    <div class="meta">${esc(r.municipio)} · ${f.toLocaleDateString("es-MX",{day:"2-digit",month:"short"})} · ${esc(r.vendedor.split(" ")[0])}</div>
+    <div class="tags">
+      ${r.interes?`<span class="tag ${r.interes==="Alto"?"si":""}">Interés ${esc(r.interes.toLowerCase())}</span>`:""}
+      ${r.marcaPrincipal?`<span class="tag">${esc(r.marcaPrincipal)}</span>`:""}
+      ${pt?`<span class="tag">${pt}</span>`:""}
+      ${r.toneladas?`<span class="tag">${Number(r.toneladas).toLocaleString("es-MX")} t/mes</span>`:""}
+      ${r.trailer==="Sí"?`<span class="tag si">Tráiler</span>`:""}
+      ${r.pago?`<span class="tag ${r.pago==="Contado"?"si":""}">${esc(r.pago)}</span>`:""}
+      ${r.lat?`<span class="tag">📍</span>`:""}
+    </div>
+  </div>`;
+}
+
+/* =========================================================
+   EXPORTAR
+   ========================================================= */
+const COLS=[
+  ["id","Folio"],["fecha","Fecha"],["vendedor","Vendedor"],["ruta","Ruta"],["municipio","Municipio"],
+  ["negocio","Negocio"],["decide","Quién decide"],["telefono","Teléfono"],["lat","Latitud"],["lon","Longitud"],
+  ["marcas","Marcas"],["marcaPrincipal","Marca principal"],
+  ["unidadPrecio","Unidad"],
+  ["precioMostrador","Precio cemento"],["precioTon","Precio cemento por tonelada"],
+  ["precioMortero","Precio mortero"],["precioMorteroTon","Precio mortero por tonelada"],
+  ["toneladas","Toneladas al mes"],["trailer","Recibe tráiler"],["pago","Cómo paga"],["interes","Interés"],["notas","Notas"]
+];
+function csv(){
+  if(!registros.length){ alert("Todavía no hay visitas que descargar."); return; }
+  const cel=v=>{
+    if(Array.isArray(v)) v=v.join(" | ");
+    v = v==null ? "" : String(v);
+    return /[",;\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v;
+  };
+  const val=(r,k)=>{
+    if(k==="fecha") return new Date(r.fecha).toLocaleString("es-MX");
+    if(k==="precioTon"){ const v=parseFloat(r.precioMostrador); return isNaN(v)?"":Math.round(r.unidadPrecio==="bulto"?v*20:v); }
+    if(k==="precioMorteroTon"){ const v=parseFloat(r.precioMortero); return isNaN(v)?"":Math.round(r.unidadPrecio==="bulto"?v*20:v); }
+    return r[k];
+  };
+  const filas=[COLS.map(c=>c[1]).join(",")].concat(
+    registros.map(r=>COLS.map(([k])=>cel(val(r,k))).join(","))
+  );
+  const blob=new Blob(["\uFEFF"+filas.join("\n")],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=`visitas_${vendedor.split(" ")[0].toLowerCase()}_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+function whats(){
+  const hoy=new Date().toDateString();
+  const dia=registros.filter(r=>new Date(r.fecha).toDateString()===hoy);
+  const alto=dia.filter(r=>r.interes==="Alto");
+  const NL=String.fromCharCode(10);
+  let t="*Recorrido "+new Date().toLocaleDateString("es-MX")+"* — "+vendedor+NL
+        +"Visitas de hoy: "+dia.length+NL+"Interés alto: "+alto.length+NL;
+  if(alto.length){ t+=NL+"*Los que sí:*"+NL+alto.map(function(r){return "• "+r.negocio+" ("+r.municipio+")";}).join(NL); }
+  t+=NL+NL+"Acumulado: "+registros.length+" visitas";
+  window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank");
+}
+
+/* =========================================================
+   SINCRONIZACIÓN CON SUPABASE
+   ========================================================= */
+const SB_URL  = "https://ijbvdoqpixwlhuisqbys.supabase.co/rest/v1/";
+const SB_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqYnZkb3FwaXh3bGh1aXNxYnlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU4NzU3ODQsImV4cCI6MjEwMTQ1MTc4NH0.s74OkJfgQDDTwbtZmR0Pml48D3iEkJujcdRm_uImIcI";
+const K_COLA  = "gj_cola";
+
+// Convierte un registro local al formato de la tabla
+function aFila(r){
+  return {
+    id:r.id, fecha:r.fecha, vendedor:r.vendedor, ruta:r.ruta, municipio:r.municipio,
+    negocio:r.negocio, decide:r.decide||null, telefono:r.telefono||null,
+    lat:r.lat, lon:r.lon, precision_m:r.precision,
+    marcas:r.marcas, marca_principal:r.marcaPrincipal||null,
+    unidad_precio:r.unidadPrecio,
+    precio_cemento:r.precioMostrador?Number(r.precioMostrador):null,
+    precio_mortero:r.precioMortero?Number(r.precioMortero):null,
+    toneladas:r.toneladas?Number(r.toneladas):null,
+    trailer:r.trailer||null, pago:r.pago||null, interes:r.interes||null, notas:r.notas||null
+  };
+}
+
+async function sincronizar(){
+  let cola = Store.get(K_COLA, []);
+  if(!cola.length || !navigator.onLine) return;
+  try{
+    const res = await fetch(SB_URL+"/rest/v1/visitas", {
+      method:"POST",
+      headers:{
+        "apikey":SB_KEY,
+        "Authorization":"Bearer "+SB_KEY,
+        "Content-Type":"application/json",
+        "Prefer":"resolution=merge-duplicates"   // reintentar no duplica
+      },
+      body: JSON.stringify(cola.map(aFila))
+    });
+    if(res.ok){ Store.set(K_COLA, []); pintar(); }
+  }catch(e){ /* sin señal: se queda en cola */ }
+}
+
+window.addEventListener("online", sincronizar);
+setInterval(sincronizar, 60000);
+sincronizar();
+
+pintar();
+</script>
+</body>
+</html>
