@@ -715,12 +715,11 @@ async function sincronizar(){
       headers:{
         "apikey":SB_KEY,
         "Authorization":"Bearer "+SB_KEY,
-        "Content-Type":"application/json",
-        "Prefer":"resolution=merge-duplicates"   // reintentar no duplica
+        "Content-Type":"application/json"
       },
       body: JSON.stringify(cola.map(aFila))
     });
-    if(res.ok){ Store.set(K_COLA, []); pintar(); }
+    if(res.ok || res.status === 409){ Store.set(K_COLA, []); pintar(); }
   }catch(e){ /* sin señal: se queda en cola */ }
 }
 
