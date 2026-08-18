@@ -49,8 +49,6 @@ totales generales SIN filtrar — comportamiento intencional acordado con César
 
 ## Pendientes activos
 
-- 🔴 **Legacy keys aún activas** — desactivar en Supabase Settings → API
-  una vez confirmado que formulario y tablero funcionan con las nuevas keys.
 - 🟠 **Borrar registros de prueba** — correr en Supabase SQL editor:
   ```sql
   DELETE FROM visitas
@@ -66,6 +64,19 @@ totales generales SIN filtrar — comportamiento intencional acordado con César
   pérdida silenciosa de las demás. Fix futuro: sincronizar registro por
   registro, o reintentar individualmente ante un 409 en batch. No urgente
   mientras la cola sea pequeña.
+- 🟡 **Deuda técnica — CSRF en endpoint ocultar:** El endpoint
+  `POST /?accion=ocultar` no tiene protección CSRF — Basic Auth no la incluye
+  nativamente. Riesgo bajo (requiere condiciones específicas, daño reversible),
+  pero si en el futuro se agregan más acciones de escritura al tablero, vale la
+  pena migrar a un login con cookie + token CSRF.
+
+## Deudas resueltas
+
+- ✅ **(2026-08-18) Legacy JWT keys desactivadas** — Legacy JWT keys (anon/service_role)
+  desactivadas en Supabase (Settings → API). Confirmado con curl que ahora responden
+  `401 UNAUTHORIZED_DISABLED_LEGACY_KEY`. Cierra el incidente de la service_role key
+  filtrada durante la sesión anterior. Formulario y tablero corren con
+  publishable/secret keys exclusivamente.
 
 ## Commits relevantes
 

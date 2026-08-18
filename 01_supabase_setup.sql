@@ -31,7 +31,8 @@ create table visitas (
   trailer           text,                       -- Sí | No | No sé
   pago              text,                       -- Contado | Crédito | Las dos
   interes           text,                       -- Alto | Medio | Bajo
-  notas             text
+  notas             text,
+  activo            boolean not null default true  -- soft delete: false = oculto en vistas
 );
 
 -- Precio normalizado a tonelada, calculado por la base.
