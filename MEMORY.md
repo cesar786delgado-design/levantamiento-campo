@@ -9,31 +9,27 @@
 
 ## Dónde nos quedamos
 
-**Formulario:** operativo con la nueva publishable key (`sb_publishable_...`)
-commiteada en `formulario/index.html`.
+**Legacy keys:** desactivadas en Supabase (2026-08-18). Confirmado con curl
+— responden `401 UNAUTHORIZED_DISABLED_LEGACY_KEY`. Formulario y tablero
+corren exclusivamente con publishable/secret keys.
 
-**Tablero:** operativo. Se resolvieron dos bugs en esta sesión:
-1. `SUPABASE_SERVICE_KEY` en Vercel tenía la key 3 veces (SyntaxError) → corregido manualmente en Vercel.
-2. Las nuevas `sb_secret_...` keys son rechazadas por Supabase cuando el request viene de un browser (detectado por user-agent) → se migró a patrón **proxy BFF**: `tablero/api/tablero.js` proxea las 4 vistas server-side; el HTML ya no lleva ninguna key.
+**Soft delete implementado:**
+- Columna `activo boolean NOT NULL DEFAULT true` agregada a `visitas`.
+- Vistas `v_prospectos`, `v_precios` y `v_marcas` actualizadas con
+  `WHERE activo = true`; `v_valor` hereda el filtro transitivamente.
+- Tablero: botón "Ocultar" por fila en la tabla de prospectos. Llama a
+  `POST /?accion=ocultar` en el BFF, que hace PATCH a Supabase server-side.
+- `01_supabase_setup.sql` sincronizado con el esquema real.
 
-**Filtros del tablero:** ahora aplican a todas las secciones (Prospectos,
-Precios, Marcas, Valor de mercado). Antes solo filtraban Prospectos porque
-las otras 3 venían pre-agregadas de vistas SQL. Ahora se calculan en JS
-a partir de `v_prospectos`, que tiene granularidad individual.
-
-**KPIs de cabecera** (Visitas totales, AA+A, Toneladas, Plazas): muestran
-totales generales SIN filtrar — comportamiento intencional acordado con César.
-
-**Legacy keys:** aún activas en Supabase. Pendiente desactivarlas.
+**Estado:** todo commiteado y pusheado a `origin/main` (`e777bed`).
+Vercel debería haber desplegado automáticamente.
 
 ## Próximo paso
 
-1. Desactivar las **legacy keys** en Supabase Settings → API (JWT secret
-   legacy / anon + service_role JWT) una vez confirmado que todo funciona
-   con las nuevas publishable/secret keys.
-2. Borrar registros de prueba de la tabla `visitas` (ver SQL en Pendientes).
-3. Prueba de punta a punta con usuario real: formulario → Supabase → tablero.
-4. Checklist completo de campo (modo avión, GPS negado, etc.).
+1. Verificar que Vercel desplegó: abrir el tablero y confirmar que aparece
+   el botón "Ocultar" en la tabla de prospectos.
+2. Prueba de punta a punta con usuario real: formulario → Supabase → tablero.
+3. Checklist completo de campo (modo avión, GPS negado, etc.).
 
 ## Decisiones recientes
 
@@ -46,17 +42,13 @@ totales generales SIN filtrar — comportamiento intencional acordado con César
 - (2026-08-06) Patrón proxy BFF en tablero: secret key nunca sale al browser.
 - (2026-08-06) Filtros del tablero ahora aplican a todas las secciones;
   KPIs de cabecera muestran totales generales sin filtrar (intencional).
+- (2026-08-18) Soft delete via columna `activo` — registros ocultos
+  permanecen en la tabla base y pueden reactivarse con un UPDATE manual.
+- (2026-08-18) Endpoint de escritura en el BFF (`POST /?accion=ocultar`)
+  protegido por Basic Auth; CSRF documentada como deuda técnica baja.
 
 ## Pendientes activos
 
-- 🟠 **Borrar registros de prueba** — correr en Supabase SQL editor:
-  ```sql
-  DELETE FROM visitas
-  WHERE id IN ('curl-test-1','curl-test-rotacion','curl-test-pub',
-               'VMSHT64IA','VMSHT8CKT');
-  ```
-  Los últimos 2 son de "Fortunato Arce Cantú" — visitas de prueba del
-  hoy (2026-08-06), no corresponden a vendedor real del proyecto.
 - 🟠 Prueba de punta a punta con usuario real sin ejecutar todavía.
 - 🟡 Checklist completo de pruebas de campo (brief original) sin correr.
 - 🟡 **Deuda técnica — sincronizar() en batch:** Un 409 marca toda la cola
@@ -90,6 +82,8 @@ totales generales SIN filtrar — comportamiento intencional acordado con César
 - `985274b` — migración a publishable key en formulario (legacy anon JWT reemplazada).
 - `7d1ea00` — proxy BFF en tablero: secret key nunca va al browser; sbGet usa `/?vista=`.
 - `bf022f5` — filtros aplican a todas las secciones; precios/marcas/valor calculados en JS desde v_prospectos.
+- `ebc7aac` — cierre de sesión anterior (actualización MEMORY.md).
+- `e777bed` — soft delete: columna activo en visitas, vistas filtradas, botón Ocultar en tablero.
 
 ---
 
@@ -98,6 +92,6 @@ totales generales SIN filtrar — comportamiento intencional acordado con César
 ```
 /inicio
 
-Después del reporte: desactivar las legacy keys en Supabase,
-borrar registros de prueba, y correr la prueba de punta a punta.
+Después del reporte: verificar deploy de Vercel (botón Ocultar visible)
+y correr la prueba de punta a punta.
 ```
