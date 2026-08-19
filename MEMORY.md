@@ -22,14 +22,12 @@ corren exclusivamente con publishable/secret keys.
 - `01_supabase_setup.sql` sincronizado con el esquema real.
 
 **Estado:** todo commiteado y pusheado a `origin/main` (`e777bed`).
-Vercel debería haber desplegado automáticamente.
+Deploy de Vercel verificado (2026-08-19) — botón "Ocultar" visible y operativo.
 
 ## Próximo paso
 
-1. Verificar que Vercel desplegó: abrir el tablero y confirmar que aparece
-   el botón "Ocultar" en la tabla de prospectos.
-2. Prueba de punta a punta con usuario real: formulario → Supabase → tablero.
-3. Checklist completo de campo (modo avión, GPS negado, etc.).
+1. Prueba de punta a punta con usuario real: formulario → Supabase → tablero.
+2. Checklist completo de campo (modo avión, GPS negado, etc.).
 
 ## Decisiones recientes
 
